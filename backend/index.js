@@ -1,10 +1,11 @@
 const express = require('express');
 const mysql = require('mysql2');
+const cors = require('cors');
 const app = express();
-const port = 3000;
+const port = 8080;
 
 app.use(express.json());
-
+app.use(cors());
  const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
@@ -30,9 +31,9 @@ app.get('/user', (req, res) => {
 
 
 app.post('/user', (req, res) => {
-  const value =[req.body.title,req.body.description,req.body.cover];
+  const value =[req.body.title,req.body.description];
 
-db.query( 'insert into table1 (`title`,`description`,`cover`) values (?)',[value], (err, data) => {
+db.query( 'insert into table1 (`title`,`description`) values (?)',[value], (err, data) => {
   if (err) {
     console.log(err);
   } else {
@@ -41,6 +42,31 @@ db.query( 'insert into table1 (`title`,`description`,`cover`) values (?)',[value
   }
 });
 });
+
+
+app.delete('/user/:id', (req, res) => {
+  const q='DELETE FROM table1 WHERE id = ?';
+  const id = req.params.id;
+  db.query(q,[id], (err, data) => {
+    if (err) {
+      res.status(500).send('Error retrieving data from database');
+    } else {
+      res.send('Data deleted successfully');
+    }
+  });});
+
+  app.put('/user/:id', (req, res) => {
+    const q='UPDATE table1 SET title = ? , description = ? WHERE id = ?';
+    const value =[req.body.title,req.body.description];
+    db.query(q,[...value,id], (err, data) => {
+      if (err) {
+        res.status(500).send('Error retrieving data from database');
+      } else {
+        res.send('update successfully');
+      }
+    });});
+
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
